@@ -1,12 +1,12 @@
 'use strict';
 
-var es = require('../')
+var map = require('../')
   , it = require('it-is')
   , u = require('ubelt')
   , spec = require('stream-spec')
-  , Stream = require('stream')
   , from = require('from')
-  , through = require('through')
+  , Stream = require('stream')
+  , es = require('event-stream')
 
 //REFACTOR THIS TEST TO USE es.readArray and es.writeArray
 
@@ -98,7 +98,7 @@ exports ['simple map applied to a stream'] = function (test) {
   var input = [1,2,3,7,5,3,1,9,0,2,4,6]
   //create event stream from
 
-  var doubler = es.map(function (data, cb) {
+  var doubler = map(function (data, cb) {
     cb(null, data * 2)
   })
 
@@ -161,7 +161,7 @@ exports['pipe two maps together'] = function (test) {
 
 exports ['map will not call end until the callback'] = function (test) {
 
-  var ticker = es.map(function (data, cb) {
+  var ticker = map(function (data, cb) {
     process.nextTick(function () {
       cb(null, data * 2)
     })
@@ -191,9 +191,6 @@ exports ['emit error thrown'] = function (test) {
     test.done()
   })
 
-//  onExit(spec(mapper).basic().validate)
-//need spec that says stream may error.
-
   mapper.write('hello')
 
 }
@@ -217,28 +214,28 @@ exports ['emit error calledback'] = function (test) {
 
 exports ['do not emit drain if not paused'] = function (test) {
 
-  var map = es.map(function (data, callback) {
+  var maps = map(function (data, callback) {
     u.delay(callback)(null, 1)
     return true
   })
   
-  spec(map).through().pausable().validateOnExit()
+  spec(maps).through().pausable().validateOnExit()
 
-  map.on('drain', function () {
+  maps.on('drain', function () {
     it(false).ok('should not emit drain unless the stream is paused')
   })
 
-  it(map.write('hello')).equal(true)
-  it(map.write('hello')).equal(true)
-  it(map.write('hello')).equal(true)
-  setTimeout(function () {map.end()},10)
-  map.on('end', test.done)
+  it(maps.write('hello')).equal(true)
+  it(maps.write('hello')).equal(true)
+  it(maps.write('hello')).equal(true)
+  setTimeout(function () {maps.end()},10)
+  maps.on('end', test.done)
 }
 
 exports ['emits drain if paused, when all '] = function (test) {
   var active = 0
   var drained = false
-  var map = es.map(function (data, callback) {
+  var maps = map(function (data, callback) {
     active ++
     u.delay(function () {
       active --
@@ -248,20 +245,20 @@ exports ['emits drain if paused, when all '] = function (test) {
     return false
   })
 
-  spec(map).through().validateOnExit()
+  spec(maps).through().validateOnExit()
 
-  map.on('drain', function () {
+  maps.on('drain', function () {
     drained = true
     it(active).equal(0, 'should emit drain when all maps are done')
   })
 
-  it(map.write('hello')).equal(false)
-  it(map.write('hello')).equal(false)
-  it(map.write('hello')).equal(false)
+  it(maps.write('hello')).equal(false)
+  it(maps.write('hello')).equal(false)
+  it(maps.write('hello')).equal(false)
 
-  process.nextTick(function () {map.end()},10)
+  process.nextTick(function () {maps.end()},10)
 
-  map.on('end', function () {
+  maps.on('end', function () {
     console.log('end')
     it(drained).ok('shoud have emitted drain before end')
     test.done() 
@@ -273,7 +270,7 @@ exports ['map applied to a stream with filtering'] = function (test) {
 
   var input = [1,2,3,7,5,3,1,9,0,2,4,6]
 
-  var doubler = es.map(function (data, callback) {
+  var doubler = map(function (data, callback) {
     if (data % 2)
       callback(null, data * 2)
     else
@@ -295,48 +292,4 @@ exports ['map applied to a stream with filtering'] = function (test) {
   
 }
 
-exports ['simple mapSync applied to a stream'] = function (test) {
-
-  var input = [1,2,3,7,5,3,1,9,0,2,4,6]
-
-  var doubler = es.mapSync(function (data) {
-    return data * 2
-  })
-  
-  readStream(doubler, function (err, output) {
-    it(output).deepEqual(input.map(function (j) {
-      return j * 2
-    }))
-    test.done()
-  })
-  
-  spec(doubler).through().validateOnExit()
-
-  writeArray(input, doubler)
-  
-}
-
-exports ['mapSync applied to a stream with filtering'] = function (test) {
-
-  var input = [1,2,3,7,5,3,1,9,0,2,4,6]
-
-  var doubler = es.mapSync(function (data) {
-    if (data % 2)
-      return data * 2
-  })
-  
-  readStream(doubler, function (err, output) {
-    it(output).deepEqual(input.filter(function (j) {
-      return j % 2
-    }).map(function (j) {
-      return j * 2
-    }))
-    test.done()
-  })
-  
-  spec(doubler).through().validateOnExit()
-
-  writeArray(input, doubler)
-  
-}
 

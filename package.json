@@ -1,30 +1,23 @@
 {
-  "name": "event-stream",
-  "version": "2.2.2",
+  "name": "map-stream",
+  "version": "0.0.0",
   "description": "construct pipes of streams of events",
-  "homepage": "http://github.com/dominictarr/event-stream",
+  "homepage": "http://github.com/dominictarr/map-stream",
   "repository": {
     "type": "git",
-    "url": "git://github.com/dominictarr/event-stream.git"
+    "url": "git://github.com/dominictarr/map-stream.git"
   },
   "dependencies": {
-    "optimist": "0.2",
-    "through": "0.0.4",
-    "duplexer": "0.0.1",
-    "from": "~0"
   },
   "devDependencies": {
     "asynct": "*",
     "it-is": "1",
     "ubelt": "~2.9",
-    "stream-spec": "~0.2"
+    "stream-spec": "~0.2",
+    "event-stream": "~2.1"
   },
   "scripts": {
     "test": "asynct test/"
   },
-  "author": "Dominic Tarr <dominic.tarr@gmail.com> (http://bit.ly/dominictarr)",
-  "optionalDependencies": {},
-  "engines": {
-    "node": "*"
-  }
+  "author": "Dominic Tarr <dominic.tarr@gmail.com> (http://dominictarr.com)"
 }
