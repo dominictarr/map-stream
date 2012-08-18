@@ -14,7 +14,8 @@
     "it-is": "1",
     "ubelt": "~2.9",
     "stream-spec": "~0.2",
-    "event-stream": "~2.1"
+    "event-stream": "~2.1",
+    "from": "*",
   },
   "scripts": {
     "test": "asynct test/"
