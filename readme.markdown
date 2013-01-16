@@ -7,9 +7,9 @@ Refactored out of [event-stream](https://github.com/dominictarr/event-stream)
 Create a through stream from an asyncronous function.  
 
 ``` js
-var es = require('event-stream')
+var map = require('map-stream')
 
-es.map(function (data, callback) {
+map(function (data, callback) {
   //transform data
   // ...
   callback(null, data)
