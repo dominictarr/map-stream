@@ -68,31 +68,6 @@ function pauseStream (prob, delay) {
   })
 }
 
-exports ['simple map'] = function (test) {
-
-  var input = u.map(1, 1000, function () {
-    return Math.random() 
-  })
-  var expected = input.map(function (v) {
-    return v * 2
-  })
-
-  var pause = pauseStream(0.1)
-  var fs = from(input)
-  var ts = es.writeArray(function (err, ar) {
-    it(ar).deepEqual(expected)
-    test.done()
-  })
-  var map = es.through(function (data) {
-    this.emit('data', data * 2)
-  }) 
-
-  spec(map).through().validateOnExit()
-  spec(pause).through().validateOnExit()
-
-  fs.pipe(map).pipe(pause).pipe(ts)
-}
-
 exports ['simple map applied to a stream'] = function (test) {
 
   var input = [1,2,3,7,5,3,1,9,0,2,4,6]
@@ -130,7 +105,7 @@ exports['pipe two maps together'] = function (test) {
   function dd (data, cb) {
     cb(null, data * 2)
   }
-  var doubler1 = es.map(dd), doubler2 = es.map(dd)
+  var doubler1 = map(dd), doubler2 = map(dd)
 
   doubler1.pipe(doubler2)
   
@@ -182,7 +157,7 @@ exports ['emit error thrown'] = function (test) {
 
   var err = new Error('INTENSIONAL ERROR')
     , mapper = 
-  es.map(function () {
+  map(function () {
     throw err
   })
 
@@ -199,7 +174,7 @@ exports ['emit error calledback'] = function (test) {
 
   var err = new Error('INTENSIONAL ERROR')
     , mapper = 
-  es.map(function (data, callback) {
+  map(function (data, callback) {
     callback(err)
   })
 
