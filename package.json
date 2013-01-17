@@ -1,6 +1,6 @@
 {
   "name": "map-stream",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "construct pipes of streams of events",
   "homepage": "http://github.com/dominictarr/map-stream",
   "repository": {
