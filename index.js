@@ -22,7 +22,7 @@ module.exports = function (mapper) {
     , lastWritten = 0
 
   // Items that are not ready to be written yet (because they would come out of
-  // oredr) get stuck in a queue for later.
+  // order) get stuck in a queue for later.
   var writeQueue = {}
 
   stream.writable = true
