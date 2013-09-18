@@ -20,7 +20,10 @@ module.exports = function (mapper) {
     , paused = false
     , destroyed = false
     , lastWritten = 0
-    , writeQueue = {}
+
+  // Items that are not ready to be written yet (because they would come out of
+  // oredr) get stuck in a queue for later.
+  var writeQueue = {}
 
   stream.writable = true
   stream.readable = true
@@ -36,13 +39,13 @@ module.exports = function (mapper) {
       lastWritten ++
       nextToWrite ++
     } else {
-      // Otherwise queue it
+      // Otherwise queue it for later.
       writeQueue[number] = data
     }
 
     // If the next value is in the queue, write it
-    var dataToWrite = writeQueue[nextToWrite]
-    if (typeof dataToWrite !== 'undefined') {
+    if (writeQueue.hasOwnProperty(nextToWrite)) {
+      var dataToWrite = writeQueue[nextToWrite]
       delete writeQueue[nextToWrite]
       return queueData(dataToWrite, nextToWrite)
     }
@@ -66,6 +69,8 @@ module.exports = function (mapper) {
     inNext = false
   }
 
+  // Wrap the mapper function by calling its callback with the order number of
+  // the item in the stream.
   function wrappedMapper (input, number, callback) {
     return mapper.call(null, input, function(err, data){
       callback(err, data, number)
