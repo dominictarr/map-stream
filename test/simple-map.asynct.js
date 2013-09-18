@@ -98,6 +98,23 @@ exports ['simple map applied to a stream'] = function (test) {
   
 }
 
+exports ['stream comes back in the correct order'] = function (test) {
+  var input = [3, 2, 1]
+
+  var delayer = map(function(data, cb){
+    setTimeout(function () {
+      cb(null, data)
+    }, 100 * data)
+  })
+
+  readStream(delayer, function (err, output) {
+    it(output).deepEqual(input)
+    test.done()
+  })
+
+  writeArray(input, delayer)
+}
+
 exports['pipe two maps together'] = function (test) {
 
   var input = [1,2,3,7,5,3,1,9,0,2,4,6]

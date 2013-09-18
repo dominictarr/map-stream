@@ -19,42 +19,72 @@ module.exports = function (mapper) {
     , ended = false
     , paused = false
     , destroyed = false
+    , lastWritten = 0
+
+  // Items that are not ready to be written yet (because they would come out of
+  // order) get stuck in a queue for later.
+  var writeQueue = {}
 
   stream.writable = true
   stream.readable = true
-   
-  stream.write = function () {
-    if(ended) throw new Error('map stream is not writable')
-    inputs ++
-    var args = [].slice.call(arguments)
-      , r
-      , inNext = false 
-    //pipe only allows one argument. so, do not 
-    function next (err) {
-      if(destroyed) return
-      inNext = true
-      outputs ++
-      var args = [].slice.call(arguments)
-      if(err) {
-        args.unshift('error')
-        return inNext = false, stream.emit.apply(stream, args)
+
+  function queueData (data, number) {
+    var nextToWrite = lastWritten + 1
+
+    if (number === nextToWrite) {
+      // If it's next, and its not undefined write it
+      if (data !== undefined) {
+        stream.emit.apply(stream, ['data', data])
       }
-      args.shift() //drop err
-      if (args.length) {
-        args.unshift('data')
-        r = stream.emit.apply(stream, args)
-      }
-      if(inputs == outputs) {
-        if(paused) paused = false, stream.emit('drain') //written all the incoming events
-        if(ended) end()
-      }
-      inNext = false
+      lastWritten ++
+      nextToWrite ++
+    } else {
+      // Otherwise queue it for later.
+      writeQueue[number] = data
     }
-    args.push(next)
-    
+
+    // If the next value is in the queue, write it
+    if (writeQueue.hasOwnProperty(nextToWrite)) {
+      var dataToWrite = writeQueue[nextToWrite]
+      delete writeQueue[nextToWrite]
+      return queueData(dataToWrite, nextToWrite)
+    }
+
+    outputs ++
+    if(inputs === outputs) {
+      if(paused) paused = false, stream.emit('drain') //written all the incoming events
+      if(ended) end()
+    }
+  }
+
+  function next (err, data, number) {
+    if(destroyed) return
+    inNext = true
+    if(err) {
+      return inNext = false, stream.emit.apply(stream, ['error', err])
+    }
+
+    queueData(data, number)
+
+    inNext = false
+  }
+
+  // Wrap the mapper function by calling its callback with the order number of
+  // the item in the stream.
+  function wrappedMapper (input, number, callback) {
+    return mapper.call(null, input, function(err, data){
+      callback(err, data, number)
+    })
+  }
+
+  stream.write = function (data) {
+    if(ended) throw new Error('map stream is not writable')
+    var inNext = false
+    inputs ++
+
     try {
       //catch sync errors and handle them like async errors
-      var written = mapper.apply(null, args)
+      var written = wrappedMapper(data, inputs, next)
       paused = (written === false)
       return !paused
     } catch (err) {
@@ -71,10 +101,11 @@ module.exports = function (mapper) {
     //if end was called with args, write it, 
     ended = true //write will emit 'end' if ended is true
     stream.writable = false
-    if(data !== undefined)
-      return stream.write(data)
-    else if (inputs == outputs) //wait for processing 
+    if(data !== undefined) {
+      return queueData(data, inputs)
+    } else if (inputs == outputs) { //wait for processing 
       stream.readable = false, stream.emit('end'), stream.destroy() 
+    }
   }
 
   stream.end = function (data) {
