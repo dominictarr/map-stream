@@ -19,37 +19,40 @@ module.exports = function (mapper) {
     , ended = false
     , paused = false
     , destroyed = false
+    , lastWritten = null
+    , toBeWritten = {}
 
   stream.writable = true
   stream.readable = true
    
+  function next (err) {
+    if(destroyed) return
+    inNext = true
+    outputs ++
+    var args = [].slice.call(arguments)
+    if(err) {
+      args.unshift('error')
+      return inNext = false, stream.emit.apply(stream, args)
+    }
+    args.shift() //drop err
+    if (args.length) {
+      args.unshift('data')
+      r = stream.emit.apply(stream, args)
+    }
+    if(inputs == outputs) {
+      if(paused) paused = false, stream.emit('drain') //written all the incoming events
+      if(ended) end()
+    }
+    inNext = false
+  }
+
   stream.write = function () {
     if(ended) throw new Error('map stream is not writable')
     inputs ++
     var args = [].slice.call(arguments)
       , r
       , inNext = false 
-    //pipe only allows one argument. so, do not 
-    function next (err) {
-      if(destroyed) return
-      inNext = true
-      outputs ++
-      var args = [].slice.call(arguments)
-      if(err) {
-        args.unshift('error')
-        return inNext = false, stream.emit.apply(stream, args)
-      }
-      args.shift() //drop err
-      if (args.length) {
-        args.unshift('data')
-        r = stream.emit.apply(stream, args)
-      }
-      if(inputs == outputs) {
-        if(paused) paused = false, stream.emit('drain') //written all the incoming events
-        if(ended) end()
-      }
-      inNext = false
-    }
+
     args.push(next)
     
     try {
