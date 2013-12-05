@@ -59,7 +59,7 @@ module.exports = function (mapper) {
 
   function next (err, data, number) {
     if(destroyed) return
-    inNext = true
+    var inNext = true
     if(err) {
       return inNext = false, stream.emit.apply(stream, ['error', err])
     }
