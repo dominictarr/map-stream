@@ -20,6 +20,7 @@ module.exports = function (mapper) {
     , paused = false
     , destroyed = false
     , lastWritten = 0
+    , inNext = false
 
   // Items that are not ready to be written yet (because they would come out of
   // order) get stuck in a queue for later.
@@ -79,7 +80,7 @@ module.exports = function (mapper) {
 
   stream.write = function (data) {
     if(ended) throw new Error('map stream is not writable')
-    var inNext = false
+    inNext = false
     inputs ++
 
     try {
