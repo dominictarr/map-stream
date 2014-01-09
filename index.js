@@ -12,12 +12,7 @@ var Stream = require('stream').Stream
 //emitting each response as data
 //unless it's an empty callback
 
-module.exports = function (opts, mapper) {
-
-  if (typeof opts === 'function') {
-    mapper = opts;
-    opts = {};
-  }
+module.exports = function (mapper, opts) {
 
   var stream = new Stream()
     , self = this
@@ -30,7 +25,7 @@ module.exports = function (opts, mapper) {
     , inNext = false
 
   this.opts = opts || {};
-  var errorEventName = opts.failures ? 'failure' : 'error';
+  var errorEventName = this.opts.failures ? 'failure' : 'error';
 
   // Items that are not ready to be written yet (because they would come out of
   // order) get stuck in a queue for later.

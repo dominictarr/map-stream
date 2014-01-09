@@ -118,9 +118,9 @@ exports ['stream comes back in the correct order'] = function (test) {
 exports ['continues on error event with failures `true`'] = function (test) {
   var input = [1, 2, 3]
 
-  var delayer = map({ failures: true }, function(data, cb){
+  var delayer = map(function(data, cb){
     cb(new Error('Something gone wrong'), data)
-  })
+  }, { failures: true })
 
   readStream(delayer, function (err, output) {
     it(output).deepEqual(input)
@@ -188,9 +188,9 @@ exports ['emit failures with opts.failures === `ture`'] = function (test) {
 
   var err = new Error('INTENSIONAL ERROR')
     , mapper = 
-  map({ failures: true }, function () {
+  map(function () {
     throw err
-  })
+  }, { failures: true })
 
   mapper.on('failure', function (_err) {
     it(_err).equal(err)  

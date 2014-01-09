@@ -2,7 +2,7 @@
 
 Refactored out of [event-stream](https://github.com/dominictarr/event-stream)
 
-##map ([options, ]asyncFunction)
+##map (asyncFunction[, options])
 
 Create a through stream from an asyncronous function.  
 
