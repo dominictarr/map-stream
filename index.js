@@ -81,9 +81,21 @@ module.exports = function (mapper, opts) {
   // Wrap the mapper function by calling its callback with the order number of
   // the item in the stream.
   function wrappedMapper (input, number, callback) {
-    return mapper.call(null, input, function(err, data){
+    var result = mapper.call(null, input, function(err, data){
       callback(err, data, number)
     })
+
+    // If returned result is a "thenable"
+    if (result && result.then) {
+      result.then(function(data) {
+        callback(null, data, number)
+      }, function(err) {
+        callback(err, null, number)
+      })
+      return;
+    } else {
+      return result
+    }
   }
 
   stream.write = function (data) {
