@@ -1,6 +1,7 @@
 {
   "name": "map-stream",
   "version": "0.0.4",
+  "license": "MIT",
   "description": "construct pipes of streams of events",
   "homepage": "http://github.com/dominictarr/map-stream",
   "repository": {
