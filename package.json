@@ -1,6 +1,6 @@
 {
   "name": "map-stream",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "license": "MIT",
   "description": "construct pipes of streams of events",
   "homepage": "http://github.com/dominictarr/map-stream",
@@ -8,8 +8,7 @@
     "type": "git",
     "url": "git://github.com/dominictarr/map-stream.git"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "asynct": "*",
     "it-is": "1",
