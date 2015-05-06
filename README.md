@@ -4,7 +4,7 @@
 Refactored out of [event-stream](https://github.com/dominictarr/event-stream)
 
 ## map (asyncFunction[, options])
-Create a through stream from an asyncronous function.
+Create a through stream from an asynchronous function.
 
 ```js
 var map = require('map-stream')
@@ -26,4 +26,4 @@ Each map MUST call the callback. It may callback with data, with an error or wit
 > Also, if the callback is called more than once, every call but the first will be ignored.
 
 ## Options
-- `failures` - `boolean` continue mapping even if error occured. On error `map-stream` will emit `failure` event. (default: `false`)
+- `failures` - `boolean` continue mapping even if error occurred. On error `map-stream` will emit `failure` event. (default: `false`)
