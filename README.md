@@ -1,4 +1,6 @@
 # MapStream
+[![Build Status](http://img.shields.io/travis/dominictarr/map-stream.svg?style=flat-square)](https://travis-ci.org/dominictarr/map-stream) [![NPM version](http://img.shields.io/npm/v/map-stream.svg?style=flat-square)](https://www.npmjs.org/package/map-stream) [![NPM license](http://img.shields.io/npm/l/map-stream.svg?style=flat-square)](https://www.npmjs.org/package/map-stream)
+
 Refactored out of [event-stream](https://github.com/dominictarr/event-stream)
 
 ## map (asyncFunction[, options])
