@@ -1,6 +1,6 @@
 'use strict';
 
-var map = require('../')
+var map = require('../lib')
   , it = require('it-is')
   , u = require('ubelt')
   , spec = require('stream-spec')

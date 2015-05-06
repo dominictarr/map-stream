@@ -14,6 +14,7 @@
   },
   "homepage": "http://github.com/dominictarr/map-stream",
   "license": "MIT",
+  "main": "lib",
   "repository": {
     "type": "git",
     "url": "git://github.com/dominictarr/map-stream.git"
