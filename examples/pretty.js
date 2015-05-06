@@ -2,7 +2,7 @@
 var inspect = require('util').inspect
 
 if(!module.parent) {
-  var map = require('..')             //load map-stream
+  var map = require('../lib')         //load map-stream
   var es = require('event-stream')    //load event-stream
   es.pipe(                            //pipe joins streams together
     process.openStdin(),              //open stdin
