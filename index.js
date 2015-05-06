@@ -107,13 +107,13 @@ module.exports = function (mapper, opts) {
   }
 
   function end (data) {
-    //if end was called with args, write it, 
+    //if end was called with args, write it,
     ended = true //write will emit 'end' if ended is true
     stream.writable = false
     if(data !== undefined) {
       return queueData(data, inputs)
-    } else if (inputs == outputs) { //wait for processing 
-      stream.readable = false, stream.emit('end'), stream.destroy() 
+    } else if (inputs == outputs) { //wait for processing
+      stream.readable = false, stream.emit('end'), stream.destroy()
     }
   }
 
@@ -139,7 +139,3 @@ module.exports = function (mapper, opts) {
 
   return stream
 }
-
-
-
-
