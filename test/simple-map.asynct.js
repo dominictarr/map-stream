@@ -21,7 +21,7 @@ function writeArray(array, stream) {
 
 function readStream(stream, done) {
 
-  var array = [] 
+  var array = []
   stream.on('data', function (data) {
     array.push(data)
   })
@@ -30,30 +30,30 @@ function readStream(stream, done) {
     done(null, array)
   })
 
-} 
+}
 
 //call sink on each write,
 //and complete when finished.
 
-function pauseStream (prob, delay) { 
+function pauseStream (prob, delay) {
   var pauseIf = (
-      'number' == typeof prob 
+      'number' == typeof prob
     ? function () {
         return Math.random() < prob
-      } 
-    : 'function' == typeof prob 
+      }
+    : 'function' == typeof prob
     ? prob
     : 0.1
   )
-  var delayer = ( 
-      !delay 
+  var delayer = (
+      !delay
     ? process.nextTick
-    : 'number' == typeof delay 
+    : 'number' == typeof delay
     ? function (next) { setTimeout(next, delay) }
     : delay
-  )   
+  )
 
-  return es.through(function (data) {    
+  return es.through(function (data) {
     if(!this.paused && pauseIf()) {
       console.log('PAUSE STREAM PAUSING')
       this.pause()
@@ -64,7 +64,7 @@ function pauseStream (prob, delay) {
       })
     }
     console.log("emit ('data', " + data + ')')
-    this.emit('data', data) 
+    this.emit('data', data)
   })
 }
 
@@ -80,10 +80,10 @@ exports ['simple map applied to a stream'] = function (test) {
   spec(doubler).through().validateOnExit()
 
   //a map is only a middle man, so it is both readable and writable
-  
+
   it(doubler).has({
     readable: true,
-    writable: true,   
+    writable: true,
   })
 
   readStream(doubler, function (err, output) {
@@ -93,9 +93,9 @@ exports ['simple map applied to a stream'] = function (test) {
 //    process.nextTick(x.validate)
     test.done()
   })
-  
+
   writeArray(input, doubler)
-  
+
 }
 
 exports ['stream comes back in the correct order'] = function (test) {
@@ -140,7 +140,7 @@ exports['pipe two maps together'] = function (test) {
   var doubler1 = map(dd), doubler2 = map(dd)
 
   doubler1.pipe(doubler2)
-  
+
   spec(doubler1).through().validateOnExit()
   spec(doubler2).through().validateOnExit()
 
@@ -150,7 +150,7 @@ exports['pipe two maps together'] = function (test) {
     }))
     test.done()
   })
-  
+
   writeArray(input, doubler1)
 
 }
@@ -164,7 +164,7 @@ exports['pipe two maps together'] = function (test) {
 //
 // plumber (evStr1, evStr2, evStr3, evStr4, evStr5)
 //
-// will return a single stream that write goes to the first 
+// will return a single stream that write goes to the first
 
 exports ['map will not call end until the callback'] = function (test) {
 
@@ -177,23 +177,23 @@ exports ['map will not call end until the callback'] = function (test) {
   spec(ticker).through().validateOnExit()
 
   ticker.write('x')
-  ticker.end() 
+  ticker.end()
 
   ticker.on('end', function () {
     test.done()
   })
 }
 
-exports ['emit failures with opts.failures === `ture`'] = function (test) {
+exports ['emit failures with opts.failures === `true`'] = function (test) {
 
   var err = new Error('INTENSIONAL ERROR')
-    , mapper = 
+    , mapper =
   map(function () {
     throw err
   }, { failures: true })
 
   mapper.on('failure', function (_err) {
-    it(_err).equal(err)  
+    it(_err).equal(err)
     test.done()
   })
 
@@ -204,13 +204,13 @@ exports ['emit failures with opts.failures === `ture`'] = function (test) {
 exports ['emit error thrown'] = function (test) {
 
   var err = new Error('INTENSIONAL ERROR')
-    , mapper = 
+    , mapper =
   map(function () {
     throw err
   })
 
   mapper.on('error', function (_err) {
-    it(_err).equal(err)  
+    it(_err).equal(err)
     test.done()
   })
 
@@ -221,13 +221,13 @@ exports ['emit error thrown'] = function (test) {
 exports ['emit error calledback'] = function (test) {
 
   var err = new Error('INTENSIONAL ERROR')
-    , mapper = 
+    , mapper =
   map(function (data, callback) {
     callback(err)
   })
 
   mapper.on('error', function (_err) {
-    it(_err).equal(err)  
+    it(_err).equal(err)
     test.done()
   })
 
@@ -241,7 +241,7 @@ exports ['do not emit drain if not paused'] = function (test) {
     u.delay(callback)(null, 1)
     return true
   })
-  
+
   spec(maps).through().pausable().validateOnExit()
 
   maps.on('drain', function () {
@@ -284,7 +284,7 @@ exports ['emits drain if paused, when all '] = function (test) {
   maps.on('end', function () {
     console.log('end')
     it(drained).ok('shoud have emitted drain before end')
-    test.done() 
+    test.done()
   })
 
 }
@@ -299,7 +299,7 @@ exports ['map applied to a stream with filtering'] = function (test) {
     else
       callback()
   })
-  
+
   readStream(doubler, function (err, output) {
     it(output).deepEqual(input.filter(function (j) {
       return j % 2
@@ -308,11 +308,9 @@ exports ['map applied to a stream with filtering'] = function (test) {
     }))
     test.done()
   })
-  
+
   spec(doubler).through().validateOnExit()
 
   writeArray(input, doubler)
-  
+
 }
-
-
