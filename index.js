@@ -34,7 +34,7 @@ module.exports = function (mapper, opts) {
   stream.writable = true
   stream.readable = true
 
-  function queueData (data, number) {
+  function queueData (data, number, callback) {
     var nextToWrite = lastWritten + 1
 
     if (number === nextToWrite) {
@@ -44,16 +44,17 @@ module.exports = function (mapper, opts) {
       }
       lastWritten ++
       nextToWrite ++
+      if (callback) callback()
     } else {
       // Otherwise queue it for later.
-      writeQueue[number] = data
+      writeQueue[number] = {data:data, callback:callback}
     }
 
     // If the next value is in the queue, write it
     if (writeQueue.hasOwnProperty(nextToWrite)) {
-      var dataToWrite = writeQueue[nextToWrite]
+      var queued = writeQueue[nextToWrite]
       delete writeQueue[nextToWrite]
-      return queueData(dataToWrite, nextToWrite)
+      return queueData(queued.data, nextToWrite, queued.callback)
     }
 
     outputs ++
@@ -63,41 +64,41 @@ module.exports = function (mapper, opts) {
     }
   }
 
-  function next (err, data, number) {
+  function next (err, data, number, callback) {
     if(destroyed) return
     inNext = true
 
     if (!err || self.opts.failures) {
-      queueData(data, number)
+      queueData(data, number, callback)
     }
 
     if (err) {
+      if (callback) callback(err);
       stream.emit.apply(stream, [ errorEventName, err ]);
     }
 
     inNext = false;
   }
 
-  // Wrap the mapper function by calling its callback with the order number of
-  // the item in the stream.
-  function wrappedMapper (input, number, callback) {
-    return mapper.call(null, input, function(err, data){
-      callback(err, data, number)
-    })
-  }
-
-  stream.write = function (data) {
+  stream.write = function (data, encoding, callback) {
     if(ended) throw new Error('map stream is not writable')
+    if(!callback && typeof encoding == 'function') {
+      callback = encoding
+      encoding = undefined
+    }
     inNext = false
     inputs ++
 
     try {
       //catch sync errors and handle them like async errors
-      var written = wrappedMapper(data, inputs, next)
+      var number = inputs
+      var written = mapper.call(null, data, function(err, output) {
+        next(err, output, number, callback)
+      })
       paused = (written === false)
       return !paused
     } catch (err) {
-      //if the callback has been called syncronously, and the error
+      //if the mapper callback has been called synchronously, and the error
       //has occured in an listener, throw it again.
       if(inNext)
         throw err
