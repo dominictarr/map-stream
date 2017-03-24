@@ -52,7 +52,10 @@ module.exports = function (mapper, opts) {
     if (writeQueue.hasOwnProperty(nextToWrite)) {
       var dataToWrite = writeQueue[nextToWrite]
       delete writeQueue[nextToWrite]
-      return queueData(dataToWrite, nextToWrite)
+      process.nextTick(function() {
+        queueData(dataToWrite, nextToWrite);
+      })
+      return
     }
 
     outputs ++
