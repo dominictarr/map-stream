@@ -315,4 +315,35 @@ exports ['map applied to a stream with filtering'] = function (test) {
   
 }
 
+exports ['promise map applied to a stream'] = function (test) {
 
+  var input = [1,2,3,7,5,3,1,9,0,2,4,6]
+  //create event stream from
+
+  var doubler = map(function (data) {
+    return {
+      then: function(onFulfilled) {
+        onFulfilled(data * 2)
+      }
+    }
+  })
+
+  spec(doubler).through().validateOnExit()
+
+  //a map is only a middle man, so it is both readable and writable
+
+  it(doubler).has({
+    readable: true,
+    writable: true,
+  })
+
+  readStream(doubler, function (err, output) {
+    it(output).deepEqual(input.map(function (j) {
+      return j * 2
+    }))
+//    process.nextTick(x.validate)
+    test.done()
+  })
+
+  writeArray(input, doubler)
+}
