@@ -53,9 +53,9 @@ module.exports = function (mapper, opts) {
           stream.emit.apply(stream, ['data', dataToWrite])
         }
 
-        lastWritten++
-        nextToWrite++
-        outputs++
+        lastWritten ++
+        nextToWrite ++
+        outputs ++
 
         // If the next value is in the queue, keeping writing from the queue
       } while (writeQueue.hasOwnProperty(nextToWrite))
@@ -75,12 +75,12 @@ module.exports = function (mapper, opts) {
     if(destroyed) return
     inNext = true
 
-    if(!err || opts.failures) {
+    if (!err || opts.failures) {
       queueData(data, number)
     }
 
-    if(err) {
-      stream.emit.apply(stream, [errorEventName, err]);
+    if (err) {
+      stream.emit.apply(stream, [ errorEventName, err ]);
     }
 
     inNext = false;
@@ -89,7 +89,7 @@ module.exports = function (mapper, opts) {
   // Wrap the mapper function by calling its callback with the order number of
   // the item in the stream.
   function wrappedMapper (input, number, callback) {
-    return mapper.call(null, input, function (err, data) {
+    return mapper.call(null, input, function(err, data) {
       callback(err, data, number)
     })
   }
@@ -97,7 +97,7 @@ module.exports = function (mapper, opts) {
   stream.write = function (data) {
     if(ended) throw new Error('map stream is not writable')
     inNext = false
-    inputs++
+    inputs ++
 
     try {
       //catch sync errors and handle them like async errors
@@ -120,8 +120,8 @@ module.exports = function (mapper, opts) {
     stream.writable = false
     if(data !== undefined) {
       return queueData(data, inputs)
-    } else if(inputs == outputs) { //wait for processing 
-      stream.readable = false, stream.emit('end'), stream.destroy()
+    } else if (inputs == outputs) { //wait for processing 
+      stream.readable = false, stream.emit('end'), stream.destroy() 
     }
   }
 
