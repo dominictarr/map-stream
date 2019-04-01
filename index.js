@@ -89,7 +89,7 @@ module.exports = function (mapper, opts) {
   // Wrap the mapper function by calling its callback with the order number of
   // the item in the stream.
   function wrappedMapper (input, number, callback) {
-    return mapper.call(null, input, function(err, data) {
+    return mapper.call(null, input, function(err, data){
       callback(err, data, number)
     })
   }
