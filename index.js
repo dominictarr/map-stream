@@ -35,35 +35,34 @@ module.exports = function (mapper, opts) {
 
   function queueData(data, number) {
     var nextToWrite = lastWritten + 1
-    var dataWritten = false;
 
-    if (number !== nextToWrite) {
-      // Otherwise queue it for later.
-      writeQueue[number] = data
-    } else {
-      // If the next value is in the queue, write it
-      while ((number === nextToWrite && !dataWritten) || writeQueue.hasOwnProperty(nextToWrite)) {
-        // If it's next, and its not undefined write it
+    if (number === nextToWrite) {
+      do {
         var dataToWrite;
-        if (!dataWritten) {
+
+        // write data contents only for the first iteration
+        if (number === nextToWrite) {
           dataToWrite = data
         } else {
           dataToWrite = writeQueue[nextToWrite]
           delete writeQueue[nextToWrite]
         }
+
+        // If it's next, and its not undefined write it
         if (dataToWrite !== undefined) {
           stream.emit.apply(stream, ['data', dataToWrite])
         }
 
-        // current data is written, mark it to only write additional items in queue
-        dataWritten = true
         lastWritten++
         nextToWrite++
-        number++
         outputs++
-
         
-      }
+        // If the next value is in the queue, keeping writing from the queue
+      } while (writeQueue.hasOwnProperty(nextToWrite))
+
+    } else {
+      // Otherwise queue it for later.
+      writeQueue[number] = data
     }
 
     if (inputs === outputs) {
